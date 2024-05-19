@@ -1,0 +1,159 @@
+import os
+
+class Recurso:
+    def __init__(self, codigo, nombre):
+        self.codigo = codigo
+        self.nombre = nombre
+        self.disponible = True
+
+class Estudiante:
+    id_counter = 1
+
+    def __init__(self, nombre):
+        self.id = Estudiante.id_counter
+        Estudiante.id_counter += 1
+        self.nombre = nombre
+
+class Prestamo:
+    def __init__(self, recurso, estudiante):
+        self.recurso = recurso
+        self.estudiante = estudiante
+
+class CentralPrestamos:
+    def __init__(self):
+        self.recursos = []
+        self.estudiantes = []
+        self.prestamos = []
+
+    def limpiar_pantalla(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    def agregar_recurso(self, codigo, nombre):
+        recurso = Recurso(codigo, nombre)
+        self.recursos.append(recurso)
+
+    def agregar_estudiante(self):
+        nombre = input("Ingrese el nombre del estudiante: ")
+        estudiante = Estudiante(nombre)
+        self.estudiantes.append(estudiante)
+        print("Estudiante agregado con ID:", estudiante.id)
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def prestar_recurso(self, codigo_recurso, id_estudiante):
+        recurso = next((r for r in self.recursos if r.codigo == codigo_recurso), None)
+        estudiante = next((e for e in self.estudiantes if e.id == id_estudiante), None)
+        if recurso and estudiante and recurso.disponible:
+            prestamo = Prestamo(recurso, estudiante)
+            self.prestamos.append(prestamo)
+            recurso.disponible = False
+            print("Recurso prestado a", estudiante.nombre)
+        else:
+            print("No se puede prestar el recurso")
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def consultar_prestamos_estudiante(self, id_estudiante):
+        estudiante = next((e for e in self.estudiantes if e.id == id_estudiante), None)
+        if estudiante:
+            prestamos_estudiante = [p for p in self.prestamos if p.estudiante.id == id_estudiante]
+            if prestamos_estudiante:
+                for prestamo in prestamos_estudiante:
+                    print("Recurso:", prestamo.recurso.nombre)
+            else:
+                print("El estudiante no tiene préstamos")
+        else:
+            print("Estudiante no encontrado")
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def consultar_info_prestamo(self, codigo_recurso):
+        recurso = next((r for r in self.recursos if r.codigo == codigo_recurso), None)
+        if recurso:
+            prestamo = next((p for p in self.prestamos if p.recurso.codigo == codigo_recurso), None)
+            if prestamo:
+                print("Recurso:", prestamo.recurso.nombre)
+                print("Estudiante:", prestamo.estudiante.nombre)
+            else:
+                print("El recurso no está prestado")
+        else:
+            print("Recurso no encontrado")
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def devolver_recurso(self, codigo_recurso):
+        prestamo = next((p for p in self.prestamos if p.recurso.codigo == codigo_recurso), None)
+        if prestamo:
+            prestamo.recurso.disponible = True
+            self.prestamos.remove(prestamo)
+            print("Recurso devuelto")
+        else:
+            print("El recurso no está prestado")
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def mostrar_recursos(self):
+        print("Recursos Disponibles:")
+        for recurso in self.recursos:
+            print(f"Código: {recurso.codigo}, Nombre: {recurso.nombre}")
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def mostrar_estudiantes(self):
+        print("Estudiantes Registrados:")
+        for estudiante in self.estudiantes:
+            print(f"ID: {estudiante.id}, Nombre: {estudiante.nombre}")
+        input("Presione Enter para continuar...")
+        self.limpiar_pantalla()
+
+    def mostrar_menu(self):
+        print("Central de Préstamos - Menú")
+        print("1. Agregar Recurso")
+        print("2. Agregar Estudiante")
+        print("3. Prestar Recurso")
+        print("4. Consultar Préstamos de Estudiante")
+        print("5. Consultar Información de Préstamo")
+        print("6. Devolver Recurso")
+        print("7. Ver Recursos Disponibles")
+        print("8. Ver Estudiantes Registrados")
+        print("0. Salir")
+
+    def ejecutar(self):
+        while True:
+            self.mostrar_menu()
+            opcion = input("Ingrese el número de la opción deseada: ")
+            self.limpiar_pantalla()
+            if opcion == "1":
+                codigo = input("Ingrese el código del recurso: ")
+                nombre = input("Ingrese el nombre del recurso: ")
+                self.agregar_recurso(codigo, nombre)
+            elif opcion == "2":
+                self.agregar_estudiante()
+            elif opcion == "3":
+                codigo_recurso = input("Ingrese el código del recurso a prestar: ")
+                id_estudiante = int(input("Ingrese el ID del estudiante: "))
+                self.prestar_recurso(codigo_recurso, id_estudiante)
+            elif opcion == "4":
+                id_estudiante = int(input("Ingrese el ID del estudiante: "))
+                self.consultar_prestamos_estudiante(id_estudiante)
+            elif opcion == "5":
+                codigo_recurso = input("Ingrese el código del recurso: ")
+                self.consultar_info_prestamo(codigo_recurso)
+            elif opcion == "6":
+                codigo_recurso = input("Ingrese el código del recurso a devolver: ")
+                self.devolver_recurso(codigo_recurso)
+            elif opcion == "7":
+                self.mostrar_recursos()
+            elif opcion == "8":
+                self.mostrar_estudiantes()
+            elif opcion == "0":
+                print("Saliendo del programa...")
+                break
+            else:
+                print("Opción no válida. Por favor, ingrese un número válido.")
+        self.limpiar_pantalla()
+
+
+# Ejemplo de uso
+central = CentralPrestamos()
+central.ejecutar()
